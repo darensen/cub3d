@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lusezett <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/12 16:32:48 by lusezett          #+#    #+#              #
-#    Updated: 2023/12/19 17:25:47 by lusezett         ###   ########.fr        #
+#    Updated: 2024/01/11 19:01:01 by dsenatus         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ DIR_OBJS		= objs
 
 SRCS_NAMES		= 	exec/main.c \
 					exec/map.c \
+					exec/rendu3d.c\
 					parsing/check_map.c \
 					parsing/map_utils.c \
 					utils/utils.c \

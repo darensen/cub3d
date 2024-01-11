@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:51:19 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/10 17:43:48 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/11 18:57:20 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,23 +42,6 @@ typedef struct s_img
     int		endian;
 }	t_img;
 
-typedef struct s_data
-{
-    void    *mlx_ptr;
-    void    *mlx_win;
-	void    *img_ptr;
-	t_img   img;
-
-    char    *av;
-    char    **map;
-	int		mapx;
-	int		mapy;
-	int		mapt;
-
-    int     playerx;
-    int     playery;
-}              t_data;
-
 typedef struct s_player
 {
     int         x;
@@ -69,12 +52,34 @@ typedef struct s_player
 
 typedef struct s_ray
 {
-    double      ray_angle;	// ray angle
-    double      distance;	// distance to the wall
-    int         flag;		// flag for the wall
+    double      angle;
+    double      distance;	
+    int         flag;		
     
 } t_ray;
 
+typedef struct s_data
+{
+    void        *mlx_ptr;
+    void        *mlx_win;
+	void        *img_ptr;
+	t_img       img;
+
+    char        *av;
+    char        **map;
+	int		    mapx;
+	int		    mapy;
+	int		    mapt;
+
+    int         playerx;
+    int         playery;
+    int         posx;
+    int         posy;
+    int         x_max;
+    int         y_max;
+    t_player    *player;
+    t_ray       *ray;
+}              t_data;
 
 enum	e_fd
 {
@@ -100,5 +105,7 @@ int     print_error(char *str);
 int     is_charset(char c, char *set);
 void	ft_print_map(char **map);
 int		map_size(char *s);
+
+void    render_wall(t_data *data, int ray);
 
 #endif

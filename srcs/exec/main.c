@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:40:56 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/10 18:51:49 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/11 21:00:34 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,44 +60,168 @@ int	handle_keypress(int keysym, t_data *data)
 		clear_all(data);
 	clear_pixel(data);
 	if (keysym == XK_w)
-		data->playery--;
+		data->player->x--;
 	else if (keysym == XK_s)
 		data->playery++;
 	else if (keysym == XK_a)
 		data->playerx--;
 	else if (keysym == XK_d)
 		data->playerx++;
-	draw_map2D(data);
-	draw_pixel(data);
 	return (0);
 }
 
-void init_ray(t_ray *ray, t_data *data)
+void	get_pos(t_data *data, char **str)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	while (str[y])
+	{
+		x = 0;
+		while (str[y][x])
+		{
+			if (str[y][x] == 'N' || str[y][x] == 'S' || str[y][x] == 'E' || str[y][x] == 'W')
+			{
+				data->posy = y;
+				data->posx = x;
+			}
+			x++;
+		}
+		y++;
+	}
+	data->x_max = x;
+	data->y_max = y;
+}
+
+
+int unit_circle(float angle, char c) 
+{
+	if (c == 'x')
+	{
+		if (angle > 0 && angle < M_PI)
+		return (1);
+	}
+	else if (c == 'y')
+	{
+		if (angle > (M_PI / 2) && angle < (3 * M_PI) / 2)
+		return (1);
+	}
+ return (0);
+}
+
+int inter_check(float angle, float *inter, float *step, int is_horizon) 
+{
+	if (is_horizon)
+	{
+		if (angle > 0 && angle < M_PI)
+		{
+			*inter += TILE_SIZE;
+			return (-1);
+		}
+	*step *= -1;
+	}
+	else
+	{
+	if (!(angle > M_PI / 2 && angle < 3 * M_PI / 2)) 
+	{
+		*inter += TILE_SIZE;
+		return (-1);
+	}
+	*step *= -1;
+ }
+ return (1);
+}
+
+int wall_hit(float x, float y, t_data *data) 
+{
+	int  x_m;
+	int  y_m;
+
+	if (x < 0 || y < 0)
+		return (0);
+	x_m = floor (x / TILE_SIZE); 
+	y_m = floor (y / TILE_SIZE);
+	if ((y_m >= data->mapy || x_m >= data->mapx))
+		return (0);
+	if (data->map[y_m] && x_m <= ft_strlen(data->map[y_m]))
+	{
+		if (data->map[y_m][x_m] == '1')
+			return (0);
+	}
+	return(1);
+}
+
+float	get_h_inter(t_data *data, float angle)
+{
+	float	h_x;
+	float	h_y;
+	float	x_step;
+	float	y_step;
+	int		pixel;
+
+	y_step = TILE_SIZE;
+	x_step = TILE_SIZE / tan(angle);
+	h_y = floor(data->player->y / TILE_SIZE) * TILE_SIZE;
+	pixel = inter_check(angle, &h_y, &y_step, 1);
+	h_x = data->player->x + (h_y - data->player->y) / tan(angle);
+	if ((unit_circle(angle, 'y') && x_step > 0) || (!unit_circle(angle, 'y') && x_step < 0)) // check x_step value
+		x_step *= -1;
+	while (wall_hit(h_x, h_y - pixel, data))
+	{
+		h_x += x_step;
+		h_y += y_step;
+	}
+	return (sqrt(pow(h_x - data->player->x, 2) + pow(h_y - data->player->y, 2)));
+}
+
+float get_v_inter(t_data *data, float angle)
+{
+	float	v_x;
+	float	v_y;
+	float	x_step;
+	float	y_step;
+	int		pixel;
+
+	x_step = TILE_SIZE; 
+	y_step = TILE_SIZE * tan(angle);
+	v_x = floor(data->player->x / TILE_SIZE) * TILE_SIZE;
+	pixel = inter_check(angle, &v_x, &x_step, 0); // check the intersection and get the pixel value
+	v_y = data->player->y + (v_x - data->player->x) * tan(angle);
+	if ((unit_circle(angle, 'x') && y_step < 0) || (!unit_circle(angle, 'x') && y_step > 0)) // check y_step value
+		y_step *= -1;
+	while (wall_hit(v_x - pixel, v_y, data)) // check the wall hit whit the pixel value
+	{
+		v_x += x_step;
+		v_y += y_step;
+	}
+	return (sqrt(pow(v_x - data->player->x, 2) + pow(v_y - data->player->y, 2))); // get the distance
+}
+
+void cast_ray(t_data *data)
 {
 	double		inter_v;
 	double		inter_h;
 	int			ray;
 
 	ray = 0;
-	ray->ray_angle = player->angle - (player->fov_rd / 2); // angle de depart
+	data->ray->angle = data->player->angle - (data->player->fov_rd / 2); // angle de depart
 	while (ray < S_W)
 	{
-		ray->flag = 0;
-		inter_h = 
-		inter_v = 
+		data->ray->flag = 0;
+		inter_h = get_v_inter(data, data->ray->angle); 
+		inter_v = get_h_inter(data, data->ray->angle);
 		if (inter_v < inter_h)
-			ray->distance = inter_v;
+			data->ray->distance = inter_v;
 		else
 		{ 
-			ray->distance = inter_h;
-			ray->flag = 1;
+			data->ray->distance = inter_h;
+			data->ray->flag = 1;
 		}
+		render_wall(data, ray);
 		ray++;
-		ray_angle += 
-		
-		
-	}  
-	
+		data->ray->angle += (data->player->fov_rd / S_W);
+	}	
 }
 
 void	find_xy(t_data *data)
@@ -117,6 +241,8 @@ void	find_xy(t_data *data)
 			{
 				data->playerx = (i * 32) + 16;
 				data->playery = (j * 32) + 16;
+				data->posx = i;
+				data->posy = j;
 				return ;	
 			}
 			i++;
@@ -125,12 +251,15 @@ void	find_xy(t_data *data)
 	}
 }
 
-void init_the_player(t_data *data, t_player *player) // init the player structure
+void init_the_player(t_data *data) // init the player structure
 {
-	player->x = data->playerx * TILE_SIZE + TILE_SIZE / 2; // player x position in pixels in the center of the tile
-	player->y = data->playery * TILE_SIZE + TILE_SIZE / 2; // player y position in pixels in the center of the tile
-	player->fov_rd = (FOV * M_PI) / 180; // field of view in radians
-	player->angle = M_PI; // player angle
+	data->player->x = data->posx * TILE_SIZE + TILE_SIZE / 2; // player x position in pixels in the center of the tile
+	data->player->y = data->posy * TILE_SIZE + TILE_SIZE / 2; // player y position in pixels in the center of the tile
+	data->player->fov_rd = (FOV * M_PI) / 180; // field of view in radians
+	data->player->angle = M_PI; // player angle
+	data->ray->distance = 0;
+	data->ray->angle = 0;
+	data->ray->flag = 0;
 	//the rest of the variables are initialized to zero by calloc
 }
 
@@ -139,20 +268,20 @@ void    init(t_data *data, t_ray *ray)
 	data->mlx_ptr = mlx_init();
 	if (data->mlx_ptr == NULL)
 		return ;
-	find_xy(data);
-	cast_ray(ray, data);
+	
 	data->mapx = ft_strlen(data->map[0]);
 	data->mapy = map_size(data->av);
 	data->mapt = data->mapx * data->mapy;
 	data->img_ptr = mlx_new_image(data->mlx_ptr, data->mapx * 32, data->mapy * 32);
-	data->mlx_win = mlx_new_window(data->mlx_ptr, data->mapx * 32,
-			data->mapy * 32, "cub3d");
+	data->mlx_win = mlx_new_window(data->mlx_ptr, S_W, S_H, "cub3d");
 	if (data->mlx_win == NULL)
 		return ;
+	find_xy(data);
+	init_the_player(data);
+	cast_ray(data);
 	mlx_hook(data->mlx_win, KeyPress, KeyPressMask, &handle_keypress, data);
 	mlx_loop_hook(data->mlx_ptr, &handle_no_event, data);
 	mlx_hook(data->mlx_win, 17, 0, &clear_all, data);
-	draw_map2D(data);
     mlx_loop(data->mlx_ptr);
 }
 
@@ -161,6 +290,8 @@ int main(int ac, char **av)
     t_data data;
 	t_ray ray;
 
+	data.player = ft_calloc(1, sizeof(t_player)); 
+ 	data.ray = ft_calloc(1, sizeof(t_ray)); 
 	if (ac != 2)
 		return (print_error("Error in arguments\n"));
 	if (checkextension(av[1]) == 1)
