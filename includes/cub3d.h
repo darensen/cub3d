@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:51:19 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/11 18:57:20 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/12 17:29:38 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 # define mapHeight 24
 # define S_W 640
 # define S_H 480
-# define TILE_SIZE 30
+# define TILE_SIZE 10
 
 typedef struct s_img
 {
@@ -104,7 +104,7 @@ void	ft_print_map(char **map);
 int     print_error(char *str);
 int     is_charset(char c, char *set);
 void	ft_print_map(char **map);
-int		map_size(char *s);
+int     map_size(char *s);
 
 void    render_wall(t_data *data, int ray);
 

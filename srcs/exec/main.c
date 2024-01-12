@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:40:56 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/11 21:00:34 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/12 18:03:23 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ int	handle_keypress(int keysym, t_data *data)
 {
 	if (keysym == XK_Escape || keysym == 113)
 		clear_all(data);
-	clear_pixel(data);
 	if (keysym == XK_w)
 		data->player->x--;
 	else if (keysym == XK_s)
@@ -186,16 +185,16 @@ float get_v_inter(t_data *data, float angle)
 	x_step = TILE_SIZE; 
 	y_step = TILE_SIZE * tan(angle);
 	v_x = floor(data->player->x / TILE_SIZE) * TILE_SIZE;
-	pixel = inter_check(angle, &v_x, &x_step, 0); // check the intersection and get the pixel value
+	pixel = inter_check(angle, &v_x, &x_step, 0); 
 	v_y = data->player->y + (v_x - data->player->x) * tan(angle);
-	if ((unit_circle(angle, 'x') && y_step < 0) || (!unit_circle(angle, 'x') && y_step > 0)) // check y_step value
+	if ((unit_circle(angle, 'x') && y_step < 0) || (!unit_circle(angle, 'x') && y_step > 0)) 
 		y_step *= -1;
-	while (wall_hit(v_x - pixel, v_y, data)) // check the wall hit whit the pixel value
+	while (wall_hit(v_x - pixel, v_y, data)) 
 	{
 		v_x += x_step;
 		v_y += y_step;
 	}
-	return (sqrt(pow(v_x - data->player->x, 2) + pow(v_y - data->player->y, 2))); // get the distance
+	return (sqrt(pow(v_x - data->player->x, 2) + pow(v_y - data->player->y, 2)));
 }
 
 void cast_ray(t_data *data)
@@ -205,7 +204,7 @@ void cast_ray(t_data *data)
 	int			ray;
 
 	ray = 0;
-	data->ray->angle = data->player->angle - (data->player->fov_rd / 2); // angle de depart
+	data->ray->angle = data->player->angle - (data->player->fov_rd / 2); 
 	while (ray < S_W)
 	{
 		data->ray->flag = 0;
@@ -251,16 +250,16 @@ void	find_xy(t_data *data)
 	}
 }
 
-void init_the_player(t_data *data) // init the player structure
+void init_the_player(t_data *data)
 {
-	data->player->x = data->posx * TILE_SIZE + TILE_SIZE / 2; // player x position in pixels in the center of the tile
-	data->player->y = data->posy * TILE_SIZE + TILE_SIZE / 2; // player y position in pixels in the center of the tile
-	data->player->fov_rd = (FOV * M_PI) / 180; // field of view in radians
-	data->player->angle = M_PI; // player angle
+	data->player->x = data->posx * TILE_SIZE + TILE_SIZE / 2;
+	data->player->y = data->posy * TILE_SIZE + TILE_SIZE / 2; 
+	data->player->fov_rd = (FOV * M_PI) / 180; 
+	data->player->angle = M_PI;
 	data->ray->distance = 0;
 	data->ray->angle = 0;
 	data->ray->flag = 0;
-	//the rest of the variables are initialized to zero by calloc
+
 }
 
 void    init(t_data *data, t_ray *ray)
@@ -272,7 +271,6 @@ void    init(t_data *data, t_ray *ray)
 	data->mapx = ft_strlen(data->map[0]);
 	data->mapy = map_size(data->av);
 	data->mapt = data->mapx * data->mapy;
-	data->img_ptr = mlx_new_image(data->mlx_ptr, data->mapx * 32, data->mapy * 32);
 	data->mlx_win = mlx_new_window(data->mlx_ptr, S_W, S_H, "cub3d");
 	if (data->mlx_win == NULL)
 		return ;
