@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:51:19 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/12 17:29:38 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:05:44 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 # define S_W 640
 # define S_H 480
 # define TILE_SIZE 10
+# define MOVE_SPEED 4
 
 typedef struct s_img
 {

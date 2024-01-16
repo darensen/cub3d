@@ -6,7 +6,7 @@
 /*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:40:56 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/12 18:03:23 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/16 20:06:43 by dsenatus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,23 @@ int	handle_keypress(int keysym, t_data *data)
 	if (keysym == XK_Escape || keysym == 113)
 		clear_all(data);
 	if (keysym == XK_w)
-		data->player->x--;
+	{
+		printf("Initial player x: %d\n", data->player->x);
+		data->player->x = roundf((cos(data->player->angle) * MOVE_SPEED) + data->player->x);
+  		data->player->y = roundf((sin(data->player->angle) * MOVE_SPEED) + data->player->y);
+		clear_pixel(data);
+		//mlx_put_image_to_window(data->mlx_ptr, data->mlx_win, data->img_ptr, 1,1);
+
+	}
 	else if (keysym == XK_s)
-		data->playery++;
-	else if (keysym == XK_a)
-		data->playerx--;
-	else if (keysym == XK_d)
-		data->playerx++;
+	{
+		printf("Initial player y: %d\n", data->player->y);
+		data->player->x = roundf((-cos(data->player->angle) * MOVE_SPEED) + data->player->x);
+  		data->player->y = roundf((-sin(data->player->angle) * MOVE_SPEED) + data->player->y);
+		clear_pixel(data);
+	}
+	/*else if (keysym == XK_a)
+	else if (keysym == XK_d)*/
 	return (0);
 }
 
@@ -204,7 +214,7 @@ void cast_ray(t_data *data)
 	int			ray;
 
 	ray = 0;
-	data->ray->angle = data->player->angle - (data->player->fov_rd / 2); 
+	data->ray->angle = data->player->angle - (data->player->fov_rd / 2);
 	while (ray < S_W)
 	{
 		data->ray->flag = 0;
@@ -220,7 +230,9 @@ void cast_ray(t_data *data)
 		render_wall(data, ray);
 		ray++;
 		data->ray->angle += (data->player->fov_rd / S_W);
+		//printf("%d",ray);
 	}	
+	//mlx_image_to_window(data->mlx_ptr, data->img_ptr, 0, 0);
 }
 
 void	find_xy(t_data *data)
@@ -262,22 +274,32 @@ void init_the_player(t_data *data)
 
 }
 
+void game_loop(t_data *data) // game loop
+{
+	t_data *dt;
+
+	dt = data;
+ 	cast_ray(dt); // cast the rays
+	mlx_put_image_to_window(dt->mlx_ptr, dt->mlx_win, dt->img_ptr, 0, 0);
+}
+
 void    init(t_data *data, t_ray *ray)
 {
 	data->mlx_ptr = mlx_init();
 	if (data->mlx_ptr == NULL)
 		return ;
-	
 	data->mapx = ft_strlen(data->map[0]);
 	data->mapy = map_size(data->av);
 	data->mapt = data->mapx * data->mapy;
 	data->mlx_win = mlx_new_window(data->mlx_ptr, S_W, S_H, "cub3d");
-	if (data->mlx_win == NULL)
-		return ;
+	data->img_ptr = mlx_new_image(data->mlx_ptr, S_W, S_H); // create new image
 	find_xy(data);
 	init_the_player(data);
+	if (data->mlx_win == NULL)
+		return ;
 	cast_ray(data);
 	mlx_hook(data->mlx_win, KeyPress, KeyPressMask, &handle_keypress, data);
+	mlx_loop_hook(data->mlx_ptr, &game_loop, data);
 	mlx_loop_hook(data->mlx_ptr, &handle_no_event, data);
 	mlx_hook(data->mlx_win, 17, 0, &clear_all, data);
     mlx_loop(data->mlx_ptr);
@@ -289,7 +311,7 @@ int main(int ac, char **av)
 	t_ray ray;
 
 	data.player = ft_calloc(1, sizeof(t_player)); 
- 	data.ray = ft_calloc(1, sizeof(t_ray)); 
+ 	data.ray = ft_calloc(1, sizeof(t_ray));
 	if (ac != 2)
 		return (print_error("Error in arguments\n"));
 	if (checkextension(av[1]) == 1)
@@ -299,6 +321,8 @@ int main(int ac, char **av)
 		return (ft_free_all(&data), 1);
 	ft_free_tab(data.map);
 	data.map = create_map(av[1], 1);
+	//find_xy(&data);
+	//init_the_player(&data);
     init(&data, &ray);
     return (0);
 }
