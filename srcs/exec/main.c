@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:40:56 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/16 20:06:43 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/17 21:55:55 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,17 @@
 
 void	ft_free_tab(char **tab)
 {
-	int		idx;
+	int		i;
 
-	idx = 0;
+	i = 0;
 	if (!tab)
 		return ;
-	while (tab[idx] != NULL)
+	while (tab[i] != NULL)
 	{
-		free(tab[idx]);
-		idx++;
+		free(tab[i]);
+		i++;
 	}
-	free (tab);
+	free(tab);
 }
 
 void	ft_free_all(t_data *data)
@@ -60,22 +60,38 @@ int	handle_keypress(int keysym, t_data *data)
 		clear_all(data);
 	if (keysym == XK_w)
 	{
-		printf("Initial player x: %d\n", data->player->x);
 		data->player->x = roundf((cos(data->player->angle) * MOVE_SPEED) + data->player->x);
   		data->player->y = roundf((sin(data->player->angle) * MOVE_SPEED) + data->player->y);
-		clear_pixel(data);
-		//mlx_put_image_to_window(data->mlx_ptr, data->mlx_win, data->img_ptr, 1,1);
-
 	}
 	else if (keysym == XK_s)
 	{
-		printf("Initial player y: %d\n", data->player->y);
 		data->player->x = roundf((-cos(data->player->angle) * MOVE_SPEED) + data->player->x);
   		data->player->y = roundf((-sin(data->player->angle) * MOVE_SPEED) + data->player->y);
-		clear_pixel(data);
 	}
-	/*else if (keysym == XK_a)
-	else if (keysym == XK_d)*/
+	else if (keysym == XK_a)
+	{
+		data->player->x -= roundf(cos(data->player->angle + M_PI / 2) * MOVE_SPEED);
+  		data->player->y -= roundf(sin(data->player->angle + M_PI / 2) * MOVE_SPEED);
+	}
+	else if (keysym == XK_d)
+	{
+		data->player->x = roundf((cos(data->player->angle + M_PI / 2 ) * MOVE_SPEED) + data->player->x);
+  		data->player->y = roundf((sin(data->player->angle +  M_PI / 2 ) * MOVE_SPEED) + data->player->y);
+	}
+	if (keysym == XK_Left)
+	{
+  		data->player->angle -= ROTATION_SPEED;
+		//if (data->player->angle < 0)
+   		//	data->player->angle += 2 * M_PI;
+	}
+	else if (keysym == XK_Right)
+	{
+    	data->player->angle += ROTATION_SPEED;
+		//if (data->player->angle > 2 * M_PI)
+   		//	data->player->angle -= 2 * M_PI;
+	}
+	
+	cast_ray(data);
 	return (0);
 }
 
@@ -230,9 +246,8 @@ void cast_ray(t_data *data)
 		render_wall(data, ray);
 		ray++;
 		data->ray->angle += (data->player->fov_rd / S_W);
-		//printf("%d",ray);
+		printf("Initial player x: %d\n", data->player->x);
 	}	
-	//mlx_image_to_window(data->mlx_ptr, data->img_ptr, 0, 0);
 }
 
 void	find_xy(t_data *data)
@@ -274,15 +289,6 @@ void init_the_player(t_data *data)
 
 }
 
-void game_loop(t_data *data) // game loop
-{
-	t_data *dt;
-
-	dt = data;
- 	cast_ray(dt); // cast the rays
-	mlx_put_image_to_window(dt->mlx_ptr, dt->mlx_win, dt->img_ptr, 0, 0);
-}
-
 void    init(t_data *data, t_ray *ray)
 {
 	data->mlx_ptr = mlx_init();
@@ -297,11 +303,10 @@ void    init(t_data *data, t_ray *ray)
 	init_the_player(data);
 	if (data->mlx_win == NULL)
 		return ;
-	cast_ray(data);
 	mlx_hook(data->mlx_win, KeyPress, KeyPressMask, &handle_keypress, data);
-	mlx_loop_hook(data->mlx_ptr, &game_loop, data);
 	mlx_loop_hook(data->mlx_ptr, &handle_no_event, data);
 	mlx_hook(data->mlx_win, 17, 0, &clear_all, data);
+	cast_ray(data);
     mlx_loop(data->mlx_ptr);
 }
 
@@ -321,8 +326,6 @@ int main(int ac, char **av)
 		return (ft_free_all(&data), 1);
 	ft_free_tab(data.map);
 	data.map = create_map(av[1], 1);
-	//find_xy(&data);
-	//init_the_player(&data);
     init(&data, &ray);
     return (0);
 }

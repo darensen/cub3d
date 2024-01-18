@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dsenatus <dsenatus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: root <root@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 16:51:19 by lusezett          #+#    #+#             */
-/*   Updated: 2024/01/16 17:05:44 by dsenatus         ###   ########.fr       */
+/*   Updated: 2024/01/17 21:31:22 by root             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,11 @@
 # define FOV 60
 # define mapWidth 24
 # define mapHeight 24
-# define S_W 640
+# define S_W 540
 # define S_H 480
-# define TILE_SIZE 10
-# define MOVE_SPEED 4
+# define TILE_SIZE 30
+# define MOVE_SPEED 2
+# define ROTATION_SPEED 0.050
 
 typedef struct s_img
 {
